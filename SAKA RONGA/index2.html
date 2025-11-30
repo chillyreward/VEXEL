@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saka Rongai - Find Local Businesses</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        saka: {
+                            orange: '#FF6B00', // Electric Orange
+                            dark: '#121212',   // Deep Charcoal
+                            card: '#1E1E1E',   // Card background
+                            gray: '#2D2D2D',   // Borders/Inputs
+                            light: '#E0E0E0'
+                        }
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 3s infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #121212;
+        }
+        /* Custom Scrollbar for the page */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121212; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2D2D2D; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FF6B00; 
+        }
+
+        .live-dot {
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            transform: scale(1);
+            animation: pulse-green 2s infinite;
+        }
+        @keyframes pulse-green {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        /* Chat Widget Styles */
+        .chat-bubble {
+            position: relative;
+            background: #1E1E1E;
+            border-radius: 12px;
+            padding: 10px 14px;
+            max-width: 85%;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+        .chat-bubble.user {
+            background: #FF6B00;
+            color: black;
+            font-weight: 600;
+            margin-left: auto;
+            border-bottom-right-radius: 2px;
+        }
+        .chat-bubble.bot {
+            background: #2D2D2D;
+            color: #E0E0E0;
+            margin-right: auto;
+            border-bottom-left-radius: 2px;
+            border: 1px solid #444;
+        }
+        .typing-dot {
+            animation: typing 1.4s infinite ease-in-out both;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="text-saka-light flex flex-col min-h-screen">
+
+    <!-- NAVBAR -->
+    <nav class="sticky top-0 z-50 bg-saka-dark/95 backdrop-blur-md border-b border-saka-gray">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-saka-orange flex items-center justify-center text-black font-bold text-xl shadow-lg shadow-orange-500/20">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-extrabold text-2xl tracking-tight text-white leading-none">SAKA</h1>
+                        <p class="text-[10px] text-saka-orange font-bold tracking-[0.2em] uppercase">Rongai Sorted</p>
+                    </div>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#" class="text-white font-medium hover:text-saka-orange transition">Home</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">About</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">Categories</a>
+                    <button onclick="alert('Add Business Form coming soon!')" class="bg-white text-black px-4 py-2 rounded-lg font-bold hover:bg-saka-orange transition transform hover:scale-105">
+                        Add Business
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button (Placeholder) -->
+                <div class="md:hidden text-2xl text-white">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <div class="bg-gradient-to-b from-saka-card to-saka-dark border-b border-saka-gray">
+        <div class="max-w-7xl mx-auto px-4 py-12 md:py-20 text-center">
+            <!-- Traffic Status Pill -->
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-800 border border-gray-700 mb-6">
+                <div class="w-2 h-2 rounded-full bg-green-500 live-dot"></div>
+                <span class="text-xs text-gray-300">Magadi Rd Status: <span class="text-green-400 font-bold">Moving Well</span></span>
+            </div>
+
+            <h2 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight">
+                Find Everything in <span class="text-saka-orange">Rongai.</span>
+            </h2>
+            <p class="text-gray-400 text-lg max-w-2xl mx-auto mb-8">
+                The verified directory for Ongata Rongai. From water trucks to reliable fundis, stop asking in WhatsApp groups and find them here.
+            </p>
+
+            <!-- Big Search Bar -->
+            <div class="max-w-xl mx-auto relative group">
+                <div class="absolute -inset-1 bg-gradient-to-r from-saka-orange to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-200"></div>
+                <div class="relative flex items-center bg-saka-gray rounded-xl overflow-hidden shadow-2xl">
+                    <i class="fa-solid fa-search text-gray-400 ml-4 text-lg"></i>
+                    <input 
+                        type="text" 
+                        id="searchInput"
+                        placeholder="What are you looking for? (e.g. Plumber, Kware Market...)" 
+                        class="w-full bg-transparent text-white p-4 focus:outline-none placeholder-gray-500"
+                    >
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <div class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow relative">
+        
+        <!-- CATEGORIES SECTION -->
+        <div class="mb-10">
+            <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Browse Categories</h3>
+            <div class="flex flex-wrap gap-3" id="categoryContainer">
+                <!-- Categories injected by JS -->
+            </div>
+        </div>
+
+        <!-- RESULTS SECTION -->
+        <div class="flex justify-between items-end mb-6">
+            <h2 class="text-2xl font-bold text-white">Top Businesses</h2>
+            <div class="text-sm text-saka-orange font-medium">
+                <i class="fa-solid fa-check-circle mr-1"></i> Verified Listings
+            </div>
+        </div>
+
+        <!-- Business Grid -->
+        <div id="businessList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards injected by JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-20 bg-saka-card rounded-2xl border border-dashed border-gray-700 mt-6">
+            <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-magnifying-glass text-2xl text-gray-500"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">No results found</h3>
+            <p class="text-gray-400">We couldn't find that in our directory yet.</p>
+            <button class="mt-4 text-saka-orange hover:text-white underline">Add this business?</button>
+        </div>
+
+    </div>
+
+    <!-- AI CHAT WIDGET (Floating) -->
+    <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        
+        <!-- Chat Box (Hidden by default) -->
+        <div id="aiChatBox" class="hidden mb-4 w-80 sm:w-96 bg-saka-dark border border-saka-orange/30 rounded-2xl shadow-2xl shadow-black overflow-hidden flex flex-col h-[500px]">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-saka-orange to-red-600 p-4 flex justify-between items-center">
+                <div class="flex items-center gap-2 text-white">
+                    <i class="fa-solid fa-robot"></i>
+                    <span class="font-bold">Saka AI Assistant ✨</span>
+                </div>
+                <button onclick="toggleChat()" class="text-white hover:text-black transition">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Messages Area -->
+            <div id="chatMessages" class="flex-1 p-4 overflow-y-auto bg-saka-card/50">
+                <div class="chat-bubble bot">
+                    Sasa! I'm your Rongai assistant. Ask me anything like "Where can I buy cement?" or "Who sells fresh fish?"
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-3 bg-saka-dark border-t border-saka-gray flex gap-2">
+                <input type="text" id="chatInput" placeholder="Ask Saka AI..." 
+                    class="flex-1 bg-saka-gray text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-saka-orange">
+                <button onclick="sendMessage()" id="sendBtn" class="bg-saka-orange text-black px-4 rounded-lg hover:bg-white transition">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Floating Action Button -->
+        <button onclick="toggleChat()" class="group relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-r from-saka-orange to-red-600 text-white shadow-lg shadow-orange-600/30 hover:scale-110 transition-all duration-300">
+            <i class="fa-solid fa-wand-magic-sparkles text-xl animate-pulse"></i>
+            <!-- Tooltip -->
+            <span class="absolute right-16 bg-white text-black text-xs font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
+                Ask AI Helper
+            </span>
+        </button>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-saka-card border-t border-saka-gray mt-auto">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-saka-orange text-sm">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <span class="text-gray-400 text-sm">Powered by <strong class="text-white">VEXEL</strong></span>
+                </div>
+                <div class="flex gap-6 text-sm text-gray-500">
+                    <a href="#" class="hover:text-saka-orange transition">Privacy</a>
+                    <a href="#" class="hover:text-saka-orange transition">Add Business</a>
+                    <a href="#" class="hover:text-saka-orange transition">Contact</a>
+                </div>
+                <div class="text-gray-600 text-xs">
+                    &copy; 2025 Saka Rongai.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- GEMINI API CONFIG ---
+        const apiKey = ""; // Runtime Environment will provide this
+        
+        // --- DATA ---
+        const categories = [
+            { id: 'all', name: 'All', icon: 'fa-layer-group' },
+            { id: 'water', name: 'Maji / Water', icon: 'fa-faucet-drip' },
+            { id: 'hardware', name: 'Hardware', icon: 'fa-hammer' },
+            { id: 'food', name: 'Soko / Food', icon: 'fa-basket-shopping' },
+            { id: 'health', name: 'Health', icon: 'fa-user-doctor' },
+            { id: 'transport', name: 'Transport', icon: 'fa-motorcycle' },
+            { id: 'services', name: 'Services', icon: 'fa-scissors' }
+        ];
+
+        const businesses = [
+            {
+                id: 1,
+                name: "Njoroge's Maji Safi",
+                category: "water",
+                location: "Kware Market",
+                status: "Online",
+                phone: "0712345678",
+                desc: "Clean borehole water. 5000L tanker available immediately.",
+                image: "blue-500"
+            },
+            {
+                id: 2,
+                name: "Rongai Central Hardware",
+                category: "hardware",
+                location: "Opposite Maasai Mall",
+                status: "Open",
+                phone: "0722123456",
+                desc: "Cement, paints, and plumbing supplies. Free delivery within Rongai.",
+                image: "orange-500"
+            },
+            {
+                id: 3,
+                name: "Mama Oliech Fish & Greens",
+                category: "food",
+                location: "Tuskys Stage (Quickmart)",
+                status: "Open",
+                phone: "0733123456",
+                desc: "Fresh Tilapia from Kisumu daily. Managu and Terere available.",
+                image: "green-500"
+            },
+            {
+                id: 4,
+                name: "Dr. Kamau Dental Clinic",
+                category: "health",
+                location: "Galaxy Building, 2nd Floor",
+                status: "Closing Soon",
+                phone: "0744123456",
+                desc: "Professional dental services. NHIF accepted.",
+                image: "teal-500"
+            },
+            {
+                id: 5,
+                name: "Kevin Boda (Safe Rider)",
+                category: "transport",
+                location: "Tumaini Stage",
+                status: "Online",
+                phone: "0755123456",
+                desc: "5 years experience. Extra helmet available. Night runs ok.",
+                image: "purple-500"
+            },
+            {
+                id: 6,
+                name: "Laiser Hill Exhauster Services",
+                category: "water",
+                location: "Laiser Hill",
+                status: "Busy",
+                phone: "0766123456",
+                desc: "Septic tank emptying. Fast response.",
+                image: "yellow-600"
+            }
+        ];
+
+        // --- DOM ELEMENTS ---
+        const categoryContainer = document.getElementById('categoryContainer');
+        const businessList = document.getElementById('businessList');
+        const searchInput = document.getElementById('searchInput');
+        const emptyState = document.getElementById('emptyState');
+        const chatInput = document.getElementById('chatInput');
+        const chatMessages = document.getElementById('chatMessages');
+
+        let activeCategory = 'all';
+
+        // --- RENDER FUNCTIONS ---
+        function renderCategories() {
+            categoryContainer.innerHTML = categories.map(cat => `
+                <button 
+                    onclick="filterCategory('${cat.id}')"
+                    class="${activeCategory === cat.id 
+                        ? 'bg-saka-orange text-black font-bold shadow-lg shadow-orange-500/20' 
+                        : 'bg-saka-card text-gray-400 hover:bg-gray-800 hover:text-white border border-saka-gray'} 
+                        px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200"
+                >
+                    <i class="fa-solid ${cat.icon}"></i>
+                    <span>${cat.name}</span>
+                </button>
+            `).join('');
+        }
+
+        function renderBusinesses(data) {
+            businessList.innerHTML = '';
+            
+            if (data.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            data.forEach(biz => {
+                let badgeColor = 'bg-green-500/10 text-green-400 border-green-500/20';
+                if(biz.status === 'Busy') badgeColor = 'bg-red-500/10 text-red-400 border-red-500/20';
+                if(biz.status === 'Closing Soon') badgeColor = 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
+
+                const card = document.createElement('div');
+                card.className = "bg-saka-card rounded-xl border border-saka-gray p-5 hover:border-saka-orange transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/5 group flex flex-col h-full";
+                
+                card.innerHTML = `
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-lg bg-${biz.image} flex items-center justify-center text-white text-lg font-bold shadow-inner">
+                            ${biz.name.substring(0,2).toUpperCase()}
+                        </div>
+                        <span class="text-xs px-2 py-1 rounded-full border ${badgeColor} font-semibold">${biz.status}</span>
+                    </div>
+
+                    <h3 class="font-bold text-white text-lg mb-1 group-hover:text-saka-orange transition-colors">${biz.name}</h3>
+                    
+                    <div class="flex items-center text-sm text-gray-400 mb-3">
+                        <i class="fa-solid fa-map-pin mr-2 text-saka-orange"></i>
+                        ${biz.location}
+                    </div>
+                    
+                    <p class="text-sm text-gray-500 mb-6 flex-grow border-t border-gray-800 pt-3 mt-1">${biz.desc}</p>
+                    
+                    <div class="grid grid-cols-4 gap-2 mt-auto">
+                        <a href="tel:${biz.phone}" class="col-span-3 bg-white hover:bg-saka-orange hover:text-black text-black font-bold py-2.5 rounded-lg text-sm flex items-center justify-center gap-2 transition-all duration-200">
+                            <i class="fa-solid fa-phone"></i> <span class="hidden sm:inline">Call Now</span>
+                        </a>
+                        <button onclick="shareBiz('${biz.name}')" class="bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg flex items-center justify-center transition-colors border border-gray-700">
+                            <i class="fa-solid fa-share-nodes"></i>
+                        </button>
+                    </div>
+                `;
+                businessList.appendChild(card);
+            });
+        }
+
+        // --- FILTER LOGIC ---
+        function filterCategory(catId) {
+            activeCategory = catId;
+            renderCategories();
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const query = searchInput.value.toLowerCase();
+            const filtered = businesses.filter(biz => {
+                const matchesCategory = activeCategory === 'all' || biz.category === activeCategory;
+                const matchesSearch = biz.name.toLowerCase().includes(query) || 
+                                      biz.desc.toLowerCase().includes(query) || 
+                                      biz.location.toLowerCase().includes(query);
+                return matchesCategory && matchesSearch;
+            });
+            renderBusinesses(filtered);
+        }
+
+        function shareBiz(name) {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Check out this business on Saka!',
+                    text: `I found ${name} on Saka Rongai.`,
+                    url: window.location.href
+                });
+            } else {
+                alert(`Copied ${name} link to clipboard!`);
+            }
+        }
+
+        // --- AI CHAT LOGIC ---
+        function toggleChat() {
+            const chatBox = document.getElementById('aiChatBox');
+            chatBox.classList.toggle('hidden');
+        }
+
+        async function sendMessage() {
+            const userText = chatInput.value.trim();
+            if (!userText) return;
+
+            // 1. Add User Message to UI
+            addMessage(userText, 'user');
+            chatInput.value = '';
+
+            // 2. Show Typing Indicator
+            const loadingId = addTypingIndicator();
+
+            // 3. Prepare Context (The Business List)
+            const contextData = JSON.stringify(businesses);
+            
+            // 4. Construct Prompt
+            const prompt = `
+                You are "Saka AI", a helpful, friendly, and street-smart assistant for the town of Ongata Rongai in Kenya. 
+                You speak in a mix of English and a little Sheng/Kenyan slang (e.g., "Sasa", "Maze", "Poa", "Checki").
+                
+                Your goal is to help users find businesses from the provided LIST below.
+                
+                Here is the list of available businesses in JSON format:
+                ${contextData}
+
+                USER QUERY: "${userText}"
+
+                INSTRUCTIONS:
+                1. Search the JSON list for businesses that match the user's need (even if not exact words, e.g., "leak" -> "plumber" or "hardware").
+                2. If you find matches, recommend them by Name and Location. Tell the user WHY it matches.
+                3. If you find NO matches in the list, apologize and suggest a general area in Rongai where they might find that service (e.g., "Kware Market for groceries", "Maasai Mall for banking").
+                4. Keep response short (under 50 words) and helpful.
+                5. Do NOT make up phone numbers. Only use what is in the list.
+            `;
+
+            try {
+                // 5. Call Gemini API
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                });
+
+                const data = await response.json();
+                
+                // Remove loading indicator
+                document.getElementById(loadingId).remove();
+
+                if (data.candidates && data.candidates[0].content) {
+                    const aiText = data.candidates[0].content.parts[0].text;
+                    // Use marked to parse markdown if Gemini sends bolding
+                    const htmlText = marked.parse(aiText);
+                    addMessage(htmlText, 'bot');
+                } else {
+                    addMessage("Eish, network iko down kidogo. Try again later!", 'bot');
+                }
+
+            } catch (error) {
+                document.getElementById(loadingId).remove();
+                addMessage("Zii! Something went wrong. Check your connection.", 'bot');
+                console.error(error);
+            }
+        }
+
+        function addMessage(text, sender) {
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${sender}`;
+            // If it's the bot, we allow HTML (for the markdown), if user, text only
+            if (sender === 'bot') {
+                bubble.innerHTML = text;
+            } else {
+                bubble.textContent = text;
+            }
+            chatMessages.appendChild(bubble);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addTypingIndicator() {
+            const id = 'loading-' + Date.now();
+            const bubble = document.createElement('div');
+            bubble.id = id;
+            bubble.className = 'chat-bubble bot flex gap-1 items-center w-16';
+            bubble.innerHTML = `
+                <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+            `;
+            chatMessages.appendChild(bubble);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return id;
+        }
+
+        // Allow 'Enter' key to send
+        chatInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // --- EVENTS & INIT ---
+        searchInput.addEventListener('input', applyFilters);
+        renderCategories();
+        renderBusinesses(businesses);
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saka Rongai - Powered by Vexel</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        saka: {
+                            orange: '#FF6B00', // The Electric Orange
+                            dark: '#121212',   // Deep Charcoal
+                            card: '#1E1E1E',   // Slightly lighter for cards
+                            gray: '#2D2D2D',
+                            light: '#E0E0E0'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Hide scrollbar for category list but keep functionality */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Mobile app feel on desktop */
+        body {
+            background-color: #000;
+        }
+        #app-container {
+            max-width: 480px; /* Mobile width */
+            margin: 0 auto;
+            min-height: 100vh;
+            background-color: #121212;
+            position: relative;
+            box-shadow: 0 0 20px rgba(255, 107, 0, 0.15);
+            padding-bottom: 80px; /* Space for bottom nav */
+        }
+        
+        /* Pulse animation for the live dot */
+        .live-dot {
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            transform: scale(1);
+            animation: pulse-green 2s infinite;
+        }
+        @keyframes pulse-green {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
+        }
+    </style>
+</head>
+<body class="text-saka-light">
+
+    <div id="app-container">
+        <!-- HEADER SECTION -->
+        <header class="sticky top-0 z-50 bg-saka-dark/95 backdrop-blur-md border-b border-saka-gray pb-2">
+            <!-- Top Bar: Logo & Location -->
+            <div class="flex justify-between items-center px-4 py-3">
+                <div class="flex items-center gap-2">
+                    <!-- Simple Logo Icon -->
+                    <div class="w-8 h-8 rounded-full bg-saka-orange flex items-center justify-center text-black font-bold text-lg">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-extrabold text-xl tracking-tight text-white">SAKA</h1>
+                        <p class="text-xs text-saka-orange font-semibold tracking-widest uppercase">Rongai Sorted</p>
+                    </div>
+                </div>
+                <!-- Vexel Credit -->
+                <div class="text-[10px] text-gray-500 text-right">
+                    by <span class="text-purple-400 font-bold">VEXEL</span>
+                </div>
+            </div>
+
+            <!-- Traffic Status Banner (The "Daily Check" feature) -->
+            <div class="mx-4 mb-3 p-2 bg-gray-900 rounded-lg border border-gray-700 flex items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-green-500 live-dot"></div>
+                <div class="text-xs flex-1">
+                    <span class="text-gray-400">Magadi Rd Status:</span>
+                    <span class="text-green-400 font-bold ml-1">Moving Well</span>
+                </div>
+                <button onclick="alert('Traffic updates coming soon!')" class="text-xs text-saka-orange hover:text-white underline">
+                    Update
+                </button>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="px-4">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        id="searchInput"
+                        placeholder="Search fundi, water, hardware..." 
+                        class="w-full bg-saka-gray text-white text-sm rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-saka-orange transition-all placeholder-gray-500"
+                    >
+                    <i class="fa-solid fa-search absolute left-4 top-3.5 text-gray-400"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- CATEGORIES (Horizontal Scroll) -->
+        <div class="px-4 py-4">
+            <h2 class="text-xs font-bold text-gray-400 uppercase mb-3 tracking-wider">Browse Categories</h2>
+            <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2" id="categoryContainer">
+                <!-- Categories injected by JS -->
+            </div>
+        </div>
+
+        <!-- MAIN FEED -->
+        <main class="px-4">
+            <div class="flex justify-between items-end mb-4">
+                <h2 class="text-lg font-bold text-white">Nearby in Rongai</h2>
+                <span class="text-xs text-saka-orange">Verified Only <i class="fa-solid fa-check-circle ml-1"></i></span>
+            </div>
+
+            <!-- Business List Container -->
+            <div id="businessList" class="space-y-4">
+                <!-- Cards injected by JS -->
+            </div>
+            
+            <!-- Empty State (Hidden by default) -->
+            <div id="emptyState" class="hidden text-center py-10">
+                <i class="fa-solid fa-ghost text-4xl text-gray-600 mb-3"></i>
+                <p class="text-gray-400">No businesses found. Try a different search!</p>
+            </div>
+        </main>
+
+        <!-- BOTTOM NAVIGATION -->
+        <nav class="fixed bottom-0 w-full max-w-[480px] bg-saka-card border-t border-saka-gray flex justify-around py-3 px-2 z-40 pb-5">
+            <button class="flex flex-col items-center gap-1 text-saka-orange w-16">
+                <i class="fa-solid fa-house text-lg"></i>
+                <span class="text-[10px] font-medium">Home</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-gray-400 hover:text-white transition w-16" onclick="alert('Favorites coming in Phase 2!')">
+                <i class="fa-regular fa-heart text-lg"></i>
+                <span class="text-[10px] font-medium">Saved</span>
+            </button>
+            <div class="relative -top-6">
+                <button class="bg-saka-orange text-black w-12 h-12 rounded-full flex items-center justify-center shadow-lg shadow-orange-500/30 transform active:scale-95 transition" onclick="alert('This will open the Add Business form!')">
+                    <i class="fa-solid fa-plus text-xl"></i>
+                </button>
+            </div>
+            <button class="flex flex-col items-center gap-1 text-gray-400 hover:text-white transition w-16" onclick="alert('Map view coming soon!')">
+                <i class="fa-solid fa-map text-lg"></i>
+                <span class="text-[10px] font-medium">Map</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-gray-400 hover:text-white transition w-16" onclick="alert('Profile coming soon!')">
+                <i class="fa-regular fa-user text-lg"></i>
+                <span class="text-[10px] font-medium">Profile</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- DATA: The "Database" (Hardcoded for MVP) ---
+        const categories = [
+            { id: 'all', name: 'All', icon: 'fa-layer-group' },
+            { id: 'water', name: 'Maji', icon: 'fa-faucet-drip' },
+            { id: 'hardware', name: 'Hardware', icon: 'fa-hammer' },
+            { id: 'food', name: 'Soko/Food', icon: 'fa-basket-shopping' },
+            { id: 'health', name: 'Health', icon: 'fa-user-doctor' },
+            { id: 'transport', name: 'Boda', icon: 'fa-motorcycle' }
+        ];
+
+        const businesses = [
+            {
+                id: 1,
+                name: "Njoroge's Maji Safi",
+                category: "water",
+                location: "Kware Market",
+                status: "Online",
+                phone: "0712345678",
+                desc: "Clean borehole water. 5000L tanker available immediately.",
+                image: "blue-500" // Tailwind color for placeholder
+            },
+            {
+                id: 2,
+                name: "Rongai Central Hardware",
+                category: "hardware",
+                location: "Opposite Maasai Mall",
+                status: "Open",
+                phone: "0722123456",
+                desc: "Cement, paints, and plumbing supplies. Free delivery within Rongai.",
+                image: "orange-500"
+            },
+            {
+                id: 3,
+                name: "Mama Oliech Fish & Greens",
+                category: "food",
+                location: "Tuskys Stage (Quickmart)",
+                status: "Open",
+                phone: "0733123456",
+                desc: "Fresh Tilapia from Kisumu daily. Managu and Terere available.",
+                image: "green-500"
+            },
+            {
+                id: 4,
+                name: "Dr. Kamau Dental Clinic",
+                category: "health",
+                location: "Galaxy Building, 2nd Floor",
+                status: "Closing Soon",
+                phone: "0744123456",
+                desc: "Professional dental services. NHIF accepted.",
+                image: "teal-500"
+            },
+            {
+                id: 5,
+                name: "Kevin Boda (Safe Rider)",
+                category: "transport",
+                location: "Tumaini Stage",
+                status: "Online",
+                phone: "0755123456",
+                desc: "5 years experience. Extra helmet available. Night runs ok.",
+                image: "purple-500"
+            },
+            {
+                id: 6,
+                name: "Laiser Hill Exhauster Services",
+                category: "water",
+                location: "Laiser Hill",
+                status: "Busy",
+                phone: "0766123456",
+                desc: "Septic tank emptying. Fast response.",
+                image: "yellow-600"
+            }
+        ];
+
+        // --- DOM ELEMENTS ---
+        const categoryContainer = document.getElementById('categoryContainer');
+        const businessList = document.getElementById('businessList');
+        const searchInput = document.getElementById('searchInput');
+        const emptyState = document.getElementById('emptyState');
+
+        let activeCategory = 'all';
+
+        // --- RENDER FUNCTIONS ---
+
+        function renderCategories() {
+            categoryContainer.innerHTML = categories.map(cat => `
+                <button 
+                    onclick="filterCategory('${cat.id}')"
+                    class="flex flex-col items-center gap-2 min-w-[70px] group transition-all"
+                >
+                    <div class="${activeCategory === cat.id ? 'bg-saka-orange text-black' : 'bg-saka-gray text-gray-400 group-hover:bg-gray-700'} w-14 h-14 rounded-2xl flex items-center justify-center text-xl transition-all shadow-md">
+                        <i class="fa-solid ${cat.icon}"></i>
+                    </div>
+                    <span class="text-[10px] font-medium ${activeCategory === cat.id ? 'text-saka-orange' : 'text-gray-400'}">${cat.name}</span>
+                </button>
+            `).join('');
+        }
+
+        function renderBusinesses(data) {
+            businessList.innerHTML = '';
+            
+            if (data.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            data.forEach(biz => {
+                // Determine badge color based on status
+                let badgeColor = 'bg-green-500/20 text-green-400 border-green-500/30';
+                if(biz.status === 'Busy') badgeColor = 'bg-red-500/20 text-red-400 border-red-500/30';
+                if(biz.status === 'Closing Soon') badgeColor = 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+
+                const card = document.createElement('div');
+                card.className = "bg-saka-card p-4 rounded-xl border border-saka-gray hover:border-saka-orange/50 transition-all group shadow-sm";
+                card.innerHTML = `
+                    <div class="flex gap-4">
+                        <!-- Initials/Image Placeholder -->
+                        <div class="w-16 h-16 rounded-lg bg-${biz.image} flex-shrink-0 flex items-center justify-center text-white text-xl font-bold shadow-inner">
+                            ${biz.name.substring(0,2).toUpperCase()}
+                        </div>
+                        
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <h3 class="font-bold text-white text-md leading-tight">${biz.name}</h3>
+                                <span class="text-[10px] px-2 py-0.5 rounded border ${badgeColor} font-medium whitespace-nowrap">${biz.status}</span>
+                            </div>
+                            
+                            <div class="flex items-center text-xs text-gray-400 mt-1 mb-2">
+                                <i class="fa-solid fa-map-pin mr-1 text-saka-orange"></i>
+                                ${biz.location}
+                            </div>
+                            
+                            <p class="text-xs text-gray-500 line-clamp-2">${biz.desc}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="mt-4 flex gap-3">
+                        <a href="tel:${biz.phone}" class="flex-1 bg-saka-orange hover:bg-orange-500 text-black font-bold py-2 rounded-lg text-sm flex items-center justify-center gap-2 transition-colors">
+                            <i class="fa-solid fa-phone"></i> Call Now
+                        </a>
+                        <button onclick="shareBiz('${biz.name}')" class="w-10 bg-saka-gray hover:bg-gray-700 text-white rounded-lg flex items-center justify-center transition-colors">
+                            <i class="fa-solid fa-share-nodes"></i>
+                        </button>
+                    </div>
+                `;
+                businessList.appendChild(card);
+            });
+        }
+
+        // --- FILTER LOGIC ---
+
+        function filterCategory(catId) {
+            activeCategory = catId;
+            renderCategories(); // Re-render to update active styling
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const query = searchInput.value.toLowerCase();
+            
+            const filtered = businesses.filter(biz => {
+                const matchesCategory = activeCategory === 'all' || biz.category === activeCategory;
+                const matchesSearch = biz.name.toLowerCase().includes(query) || 
+                                      biz.desc.toLowerCase().includes(query) || 
+                                      biz.location.toLowerCase().includes(query);
+                return matchesCategory && matchesSearch;
+            });
+
+            renderBusinesses(filtered);
+        }
+
+        function shareBiz(name) {
+            // Check if Web Share API is available (works on mobile)
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Check out this business on Saka!',
+                    text: `I found ${name} on Saka Rongai.`,
+                    url: window.location.href
+                });
+            } else {
+                alert(`Copied ${name} link to clipboard!`);
+            }
+        }
+
+        // --- EVENT LISTENERS ---
+        searchInput.addEventListener('input', applyFilters);
+
+        // --- INITIALIZE ---
+        renderCategories();
+        renderBusinesses(businesses);
+
+    </script>
+</body>
+</html>
