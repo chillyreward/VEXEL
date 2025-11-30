@@ -3,376 +3,759 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saka Rongai - Powered by Vexel</title>
+    <title>Saka Rongai | The Hyperlocal Engine</title>
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome for Icons -->
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Configuration -->
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
                     colors: {
                         saka: {
-                            orange: '#FF6B00', // The Electric Orange
-                            dark: '#121212',   // Deep Charcoal
-                            card: '#1E1E1E',   // Slightly lighter for cards
+                            orange: '#FF6B00',
+                            dark: '#121212',
+                            card: '#1E1E1E',
                             gray: '#2D2D2D',
                             light: '#E0E0E0'
                         }
+                    },
+                    fontFamily: {
+                        'sans': ['Urbanist', 'sans-serif']
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 3s infinite',
                     }
                 }
             }
         }
     </script>
+    
     <style>
-        /* Hide scrollbar for category list but keep functionality */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        
-        /* Mobile app feel on desktop */
         body {
-            background-color: #000;
-        }
-        #app-container {
-            max-width: 480px; /* Mobile width */
-            margin: 0 auto;
-            min-height: 100vh;
+            font-family: 'Urbanist', sans-serif;
             background-color: #121212;
-            position: relative;
-            box-shadow: 0 0 20px rgba(255, 107, 0, 0.15);
-            padding-bottom: 80px; /* Space for bottom nav */
+            color: #e5e5e5;
         }
         
-        /* Pulse animation for the live dot */
+        /* Smooth Scroll */
+        html { scroll-behavior: smooth; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #121212; }
+        ::-webkit-scrollbar-thumb { background: #2D2D2D; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #FF6B00; }
+
+        /* Hero Background - Rongai Vibe */
+        .hero-bg {
+            background-image: linear-gradient(to bottom, rgba(18,18,18,0.3), rgba(18,18,18,1)), url('https://images.unsplash.com/photo-1542397284385-6010376c5337?q=80&w=2574&auto=format&fit=crop'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* Glassmorphism */
+        .glass-card {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Traffic Pulse */
         .live-dot {
             box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
-            transform: scale(1);
             animation: pulse-green 2s infinite;
         }
         @keyframes pulse-green {
-            0% {
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
-            }
-            70% {
-                transform: scale(1);
-                box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
-            }
-            100% {
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
-            }
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
         }
+
+        /* Chat Bubbles */
+        .chat-bubble { padding: 10px 14px; border-radius: 12px; max-width: 85%; margin-bottom: 8px; font-size: 0.9rem; position: relative; }
+        .chat-user { background: #FF6B00; color: black; margin-left: auto; border-bottom-right-radius: 2px; font-weight: 600; }
+        .chat-bot { background: #2D2D2D; color: white; margin-right: auto; border-bottom-left-radius: 2px; border: 1px solid #444; }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #1E1E1E;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            border-left: 4px solid #FF6B00;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transform: translateX(400px);
+            transition: transform 0.3s ease-out;
+            z-index: 2000;
+        }
+        .toast.show { transform: translateX(0); }
     </style>
 </head>
-<body class="text-saka-light">
+<body class="overflow-x-hidden flex flex-col min-h-screen">
 
-    <div id="app-container">
-        <!-- HEADER SECTION -->
-        <header class="sticky top-0 z-50 bg-saka-dark/95 backdrop-blur-md border-b border-saka-gray pb-2">
-            <!-- Top Bar: Logo & Location -->
-            <div class="flex justify-between items-center px-4 py-3">
-                <div class="flex items-center gap-2">
-                    <!-- Simple Logo Icon -->
-                    <div class="w-8 h-8 rounded-full bg-saka-orange flex items-center justify-center text-black font-bold text-lg">
+    <!-- NAVBAR -->
+    <nav class="fixed top-0 w-full z-50 bg-saka-dark/95 backdrop-blur-md border-b border-saka-gray transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 cursor-pointer group" onclick="window.scrollTo(0,0)">
+                    <div class="w-10 h-10 rounded-full bg-saka-orange flex items-center justify-center text-black font-bold text-xl shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-location-dot"></i>
                     </div>
                     <div>
-                        <h1 class="font-extrabold text-xl tracking-tight text-white">SAKA</h1>
-                        <p class="text-xs text-saka-orange font-semibold tracking-widest uppercase">Rongai Sorted</p>
+                        <h1 class="font-extrabold text-2xl tracking-tight text-white leading-none">SAKA</h1>
+                        <p class="text-[10px] text-saka-orange font-bold tracking-[0.2em] uppercase">Rongai Sorted</p>
                     </div>
                 </div>
-                <!-- Vexel Credit -->
-                <div class="text-[10px] text-gray-500 text-right">
-                    by <span class="text-purple-400 font-bold">VEXEL</span>
-                </div>
-            </div>
 
-            <!-- Traffic Status Banner (The "Daily Check" feature) -->
-            <div class="mx-4 mb-3 p-2 bg-gray-900 rounded-lg border border-gray-700 flex items-center gap-3">
-                <div class="w-2 h-2 rounded-full bg-green-500 live-dot"></div>
-                <div class="text-xs flex-1">
-                    <span class="text-gray-400">Magadi Rd Status:</span>
-                    <span class="text-green-400 font-bold ml-1">Moving Well</span>
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#" class="text-white font-bold hover:text-saka-orange transition">Home</a>
+                    <a href="#about" class="text-gray-400 hover:text-white transition">About</a>
+                    <a href="#directory" class="text-gray-400 hover:text-white transition">Categories</a>
+                    <button onclick="toggleChat()" class="text-gray-400 hover:text-white transition">Saka AI ✨</button>
                 </div>
-                <button onclick="alert('Traffic updates coming soon!')" class="text-xs text-saka-orange hover:text-white underline">
-                    Update
-                </button>
-            </div>
 
-            <!-- Search Bar -->
-            <div class="px-4">
-                <div class="relative">
-                    <input 
-                        type="text" 
-                        id="searchInput"
-                        placeholder="Search fundi, water, hardware..." 
-                        class="w-full bg-saka-gray text-white text-sm rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-saka-orange transition-all placeholder-gray-500"
-                    >
-                    <i class="fa-solid fa-search absolute left-4 top-3.5 text-gray-400"></i>
+                <!-- Auth / Actions -->
+                <div class="flex items-center gap-4" id="authSection">
+                    <button onclick="showLoginModal()" class="hidden md:block text-white font-medium hover:text-saka-orange transition">Log in</button>
+                    <button onclick="showSignupModal()" class="bg-white text-black px-5 py-2.5 rounded-full font-bold hover:bg-saka-orange hover:text-black transition transform hover:scale-105 shadow-lg">
+                        Sign up
+                    </button>
+                    <button class="md:hidden text-white text-xl" onclick="document.getElementById('mobile-nav').classList.toggle('hidden')">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
                 </div>
-            </div>
-        </header>
-
-        <!-- CATEGORIES (Horizontal Scroll) -->
-        <div class="px-4 py-4">
-            <h2 class="text-xs font-bold text-gray-400 uppercase mb-3 tracking-wider">Browse Categories</h2>
-            <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2" id="categoryContainer">
-                <!-- Categories injected by JS -->
             </div>
         </div>
-
-        <!-- MAIN FEED -->
-        <main class="px-4">
-            <div class="flex justify-between items-end mb-4">
-                <h2 class="text-lg font-bold text-white">Nearby in Rongai</h2>
-                <span class="text-xs text-saka-orange">Verified Only <i class="fa-solid fa-check-circle ml-1"></i></span>
+        
+        <!-- Mobile Nav -->
+        <div id="mobile-nav" class="hidden md:hidden bg-saka-card border-t border-saka-gray p-4 absolute w-full shadow-2xl">
+            <div class="flex flex-col space-y-4">
+                <a href="#" class="text-white font-medium">Home</a>
+                <a href="#directory" class="text-white font-medium">Directory</a>
+                <button onclick="toggleChat()" class="text-white font-medium text-left">Ask AI</button>
+                <button onclick="showLoginModal()" class="text-saka-orange font-bold text-left">Log In</button>
             </div>
+        </div>
+    </nav>
 
-            <!-- Business List Container -->
-            <div id="businessList" class="space-y-4">
-                <!-- Cards injected by JS -->
-            </div>
+    <!-- HERO SECTION -->
+    <section class="relative min-h-[90vh] flex items-center pt-20 hero-bg">
+        <div class="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
             
-            <!-- Empty State (Hidden by default) -->
-            <div id="emptyState" class="hidden text-center py-10">
-                <i class="fa-solid fa-ghost text-4xl text-gray-600 mb-3"></i>
-                <p class="text-gray-400">No businesses found. Try a different search!</p>
-            </div>
-        </main>
+            <!-- Left: The Search Engine -->
+            <div class="glass-card rounded-2xl p-6 md:p-10 shadow-2xl max-w-lg w-full transform transition hover:scale-[1.01] duration-500">
+                <!-- Status Pill -->
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 border border-gray-700 mb-6">
+                    <div class="w-2 h-2 rounded-full bg-green-500 live-dot"></div>
+                    <span class="text-xs text-gray-300">Magadi Rd: <span class="text-green-400 font-bold">Moving Well</span></span>
+                </div>
 
-        <!-- BOTTOM NAVIGATION -->
-        <nav class="fixed bottom-0 w-full max-w-[480px] bg-saka-card border-t border-saka-gray flex justify-around py-3 px-2 z-40 pb-5">
-            <button class="flex flex-col items-center gap-1 text-saka-orange w-16">
-                <i class="fa-solid fa-house text-lg"></i>
-                <span class="text-[10px] font-medium">Home</span>
-            </button>
-            <button class="flex flex-col items-center gap-1 text-gray-400 hover:text-white transition w-16" onclick="alert('Favorites coming in Phase 2!')">
-                <i class="fa-regular fa-heart text-lg"></i>
-                <span class="text-[10px] font-medium">Saved</span>
-            </button>
-            <div class="relative -top-6">
-                <button class="bg-saka-orange text-black w-12 h-12 rounded-full flex items-center justify-center shadow-lg shadow-orange-500/30 transform active:scale-95 transition" onclick="alert('This will open the Add Business form!')">
-                    <i class="fa-solid fa-plus text-xl"></i>
+                <h1 class="text-5xl md:text-6xl font-black text-white mb-4 leading-tight tracking-tight">
+                    Find it in <span class="text-saka-orange">Rongai.</span>
+                </h1>
+                <p class="text-gray-400 mb-8 text-lg font-medium">From Mama Fua to Car Hire. The digital engine for Rongai's hustle.</p>
+
+                <!-- Search Inputs -->
+                <div class="space-y-4 relative">
+                    <div class="absolute left-4 top-6 bottom-6 w-0.5 bg-gray-700 z-0"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="flex items-center bg-saka-gray rounded-xl px-4 py-4 border-2 border-transparent focus-within:border-white transition-colors">
+                            <div class="w-2 h-2 bg-white rounded-full mr-4 shadow-[0_0_10px_white]"></div>
+                            <input type="text" id="heroSearch" placeholder="What do you need? (e.g. Mama Fua, Car Hire)" 
+                                class="bg-transparent w-full text-white placeholder-gray-500 outline-none text-lg font-medium">
+                        </div>
+                    </div>
+
+                    <div class="relative z-10">
+                        <div class="flex items-center bg-saka-gray rounded-xl px-4 py-4 border-2 border-transparent focus-within:border-white transition-colors">
+                            <div class="w-2 h-2 bg-saka-orange rounded-sm mr-4 shadow-[0_0_10px_orange]"></div>
+                            <input type="text" value="Current Location (Rongai)" readonly
+                                class="bg-transparent w-full text-gray-400 outline-none cursor-not-allowed font-medium">
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="scrollToDirectory()" class="w-full bg-saka-orange hover:bg-orange-500 text-black font-bold text-xl py-4 rounded-xl mt-8 transition-all shadow-lg shadow-orange-600/20 transform hover:translate-y-[-2px] flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-magnifying-glass"></i> Saka Now
                 </button>
             </div>
-            <button class="flex flex-col items-center gap-1 text-gray-400 hover:text-white transition w-16" onclick="alert('Map view coming soon!')">
-                <i class="fa-solid fa-map text-lg"></i>
-                <span class="text-[10px] font-medium">Map</span>
-            </button>
-            <button class="flex flex-col items-center gap-1 text-gray-400 hover:text-white transition w-16" onclick="alert('Profile coming soon!')">
-                <i class="fa-regular fa-user text-lg"></i>
-                <span class="text-[10px] font-medium">Profile</span>
-            </button>
-        </nav>
+
+            <!-- Right: Feature Cards -->
+            <div class="hidden lg:grid grid-cols-2 gap-4 opacity-90">
+                <div class="bg-saka-card p-6 rounded-2xl border border-gray-700 hover:border-saka-orange transition-all cursor-pointer group" onclick="filterCategory('water'); scrollToDirectory()">
+                    <div class="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-faucet-drip text-blue-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-white font-bold text-xl">Maji Tracker</h3>
+                    <p class="text-gray-500 text-sm mt-1">Find water tankers nearby.</p>
+                </div>
+                <div class="bg-saka-card p-6 rounded-2xl border border-gray-700 hover:border-saka-orange transition-all cursor-pointer group mt-8" onclick="filterCategory('mamafua'); scrollToDirectory()">
+                    <div class="w-12 h-12 bg-pink-500/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-hands-bubbles text-pink-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-white font-bold text-xl">Mama Fua</h3>
+                    <p class="text-gray-500 text-sm mt-1">Laundry & cleaning services.</p>
+                </div>
+                <div class="bg-saka-card p-6 rounded-2xl border border-gray-700 hover:border-saka-orange transition-all cursor-pointer group" onclick="filterCategory('transport'); scrollToDirectory()">
+                    <div class="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-car text-green-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-white font-bold text-xl">Car Hire</h3>
+                    <p class="text-gray-500 text-sm mt-1">Rentals & Movers.</p>
+                </div>
+                <div class="bg-saka-card p-6 rounded-2xl border border-gray-700 hover:border-saka-orange transition-all cursor-pointer group mt-8" onclick="filterCategory('food'); scrollToDirectory()">
+                    <div class="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-utensils text-purple-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-white font-bold text-xl">Food</h3>
+                    <p class="text-gray-500 text-sm mt-1">Restaurants & Soko.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT SECTION -->
+    <section id="about" class="py-16 bg-black border-b border-gray-800">
+        <div class="container mx-auto px-4 text-center max-w-3xl">
+            <h2 class="text-3xl font-bold text-saka-orange mb-4">About Saka Rongai</h2>
+            <p class="text-gray-300 text-lg leading-relaxed">
+                Ongata Rongai is a bustling city, but finding reliable services can be chaos. 
+                <strong>Saka</strong> (meaning "Search" or "Hustle") connects the informal economy to the digital world. 
+                We verify every business—from the <em>Mama Fua</em> in Kware to the <em>Hardware</em> in Rimpa—so you can order with confidence. 
+                No more spammy WhatsApp groups. Just verified results.
+            </p>
+        </div>
+    </section>
+
+    <!-- DIRECTORY SECTION -->
+    <section id="directory" class="py-20 bg-saka-dark w-full">
+        <div class="container mx-auto px-4 max-w-7xl">
+            
+            <!-- Category Tabs -->
+            <div class="flex gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar border-b border-gray-800" id="categoryTabs">
+                <!-- Injected via JS -->
+            </div>
+
+            <!-- The Content Container -->
+            <div id="mainContentArea">
+                <!-- Grouped Sections will be injected here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-20 bg-saka-card rounded-2xl border border-dashed border-gray-700 mt-6">
+                <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-ghost text-3xl text-gray-500"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">No results found</h3>
+                <p class="text-gray-400">Try searching for something else or ask Saka AI.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- DETAILS MODAL (The "Order" Popup) -->
+    <div id="detailsModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-saka-card w-full max-w-lg rounded-2xl border border-gray-700 p-0 relative transform transition-all shadow-2xl overflow-hidden">
+            <!-- Modal Header Image Placeholder -->
+            <div class="h-32 bg-gradient-to-r from-saka-orange to-red-600 w-full relative">
+                <button onclick="closeDetailsModal()" class="absolute top-4 right-4 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-black transition"><i class="fa-solid fa-times"></i></button>
+            </div>
+            
+            <div class="p-8 -mt-12 relative">
+                <div class="w-20 h-20 rounded-xl bg-gray-800 border-4 border-saka-card flex items-center justify-center text-3xl font-bold text-white shadow-lg mb-4" id="modalImg">
+                    <!-- Initials -->
+                </div>
+                
+                <h2 class="text-3xl font-bold text-white mb-1" id="modalName">Business Name</h2>
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-saka-orange text-sm font-bold flex items-center gap-1"><i class="fa-solid fa-star"></i> <span id="modalStars">4.8</span></span>
+                    <span class="text-gray-500 text-xs">•</span>
+                    <span class="text-gray-400 text-sm" id="modalCat">Category</span>
+                </div>
+
+                <div class="space-y-4 mb-8">
+                    <div class="flex items-start gap-3 p-3 bg-gray-800/50 rounded-lg">
+                        <i class="fa-solid fa-location-dot text-saka-orange mt-1"></i>
+                        <div>
+                            <p class="text-white text-sm font-bold">Location</p>
+                            <p class="text-gray-400 text-xs" id="modalLoc">Location details</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-3 bg-gray-800/50 rounded-lg">
+                        <i class="fa-solid fa-info-circle text-blue-400 mt-1"></i>
+                        <div>
+                            <p class="text-white text-sm font-bold">About</p>
+                            <p class="text-gray-400 text-xs" id="modalDesc">Description goes here.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <a id="modalCall" href="#" class="bg-gray-700 hover:bg-white hover:text-black text-white py-3 rounded-xl text-center font-bold transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-phone"></i> Call
+                    </a>
+                    <a id="modalWhatsapp" href="#" target="_blank" class="bg-green-600 hover:bg-green-500 text-white py-3 rounded-xl text-center font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-green-900/20">
+                        <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- AUTH MODAL -->
+    <div id="authModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-saka-card w-full max-w-md rounded-2xl border border-gray-700 p-8 relative transform transition-all shadow-2xl overflow-y-auto max-h-[90vh]">
+            <button onclick="toggleAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-times text-xl"></i></button>
+            
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 rounded-full bg-saka-orange flex items-center justify-center text-black font-bold text-xl mx-auto mb-4">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white" id="authTitle">Welcome to Saka</h2>
+            </div>
+
+            <!-- Login View -->
+            <div id="loginView">
+                <form onsubmit="handleAuth(event)" class="space-y-4">
+                    <button type="button" class="w-full bg-white text-black font-bold py-3 rounded-xl hover:bg-gray-200 transition flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-google text-red-500"></i> Continue with Google
+                    </button>
+                    <div class="flex items-center gap-2 text-gray-500 text-xs my-4">
+                        <div class="h-[1px] bg-gray-700 flex-1"></div> OR <div class="h-[1px] bg-gray-700 flex-1"></div>
+                    </div>
+                    <input type="email" placeholder="Email Address" class="w-full bg-saka-gray border border-gray-600 rounded-xl p-3.5 text-white focus:border-saka-orange outline-none" required>
+                    <input type="password" placeholder="Password" class="w-full bg-saka-gray border border-gray-600 rounded-xl p-3.5 text-white focus:border-saka-orange outline-none" required>
+                    <button type="submit" class="w-full bg-saka-orange text-black font-bold py-3.5 rounded-xl hover:bg-white transition">Log In</button>
+                </form>
+                <p class="text-center text-gray-400 text-xs mt-6">
+                    New here? <button onclick="switchAuthView('signup')" class="text-saka-orange hover:underline">Create Account</button>
+                </p>
+            </div>
+
+            <!-- Signup View -->
+            <div id="signupView" class="hidden">
+                <form onsubmit="handleAuth(event)" class="space-y-3">
+                    <button type="button" class="w-full bg-white text-black font-bold py-3 rounded-xl hover:bg-gray-200 transition flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-google text-red-500"></i> Sign up with Google
+                    </button>
+                    <div class="flex items-center gap-2 text-gray-500 text-xs my-2">
+                        <div class="h-[1px] bg-gray-700 flex-1"></div> OR <div class="h-[1px] bg-gray-700 flex-1"></div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" placeholder="First Name" class="bg-saka-gray border border-gray-600 rounded-xl p-3 text-white focus:border-saka-orange outline-none" required>
+                        <input type="text" placeholder="Last Name" class="bg-saka-gray border border-gray-600 rounded-xl p-3 text-white focus:border-saka-orange outline-none" required>
+                    </div>
+                    <input type="tel" placeholder="Phone Number (e.g. 07...)" class="w-full bg-saka-gray border border-gray-600 rounded-xl p-3 text-white focus:border-saka-orange outline-none" required>
+                    <input type="email" placeholder="Email Address" class="w-full bg-saka-gray border border-gray-600 rounded-xl p-3 text-white focus:border-saka-orange outline-none" required>
+                    <input type="password" placeholder="Create Password" class="w-full bg-saka-gray border border-gray-600 rounded-xl p-3 text-white focus:border-saka-orange outline-none" required>
+
+                    <!-- Business Toggle -->
+                    <div class="bg-gray-800 p-3 rounded-xl border border-gray-700 mt-2">
+                        <label class="flex items-center gap-2 cursor-pointer mb-2">
+                            <input type="checkbox" id="bizToggle" class="w-4 h-4 accent-saka-orange" onchange="toggleBizFields()">
+                            <span class="text-sm text-white font-bold">Register as a Business?</span>
+                        </label>
+                        <div id="bizFields" class="hidden space-y-3 mt-2 border-t border-gray-700 pt-2">
+                            <select class="w-full bg-saka-dark border border-gray-600 rounded-lg p-2 text-xs text-white">
+                                <option>Select Business Type...</option>
+                                <option>Hardware</option>
+                                <option>Transport / Car Hire</option>
+                                <option>Food / Restaurant</option>
+                                <option>Services (Mama Fua/Househelp)</option>
+                            </select>
+                            <textarea placeholder="Services Offered (e.g. Laundry, Cooking...)" class="w-full bg-saka-dark border border-gray-600 rounded-lg p-2 text-xs text-white h-16"></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-saka-orange text-black font-bold py-3.5 rounded-xl hover:bg-white transition mt-2">Create Account</button>
+                </form>
+                <p class="text-center text-gray-400 text-xs mt-4">
+                    Already have an account? <button onclick="switchAuthView('login')" class="text-saka-orange hover:underline">Log In</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SAKA AI FLOATING WIDGET -->
+    <div class="fixed bottom-8 right-8 z-40">
+        <button onclick="toggleChat()" class="group relative flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-saka-orange to-red-600 text-white shadow-2xl hover:scale-110 transition-all duration-300 z-50 animate-bounce-slow border-2 border-white/20">
+            <i class="fa-solid fa-wand-magic-sparkles text-2xl"></i>
+            <span class="absolute right-20 bg-white text-black px-3 py-1 rounded-lg text-sm font-bold opacity-0 group-hover:opacity-100 transition whitespace-nowrap shadow-lg">Ask Saka AI</span>
+        </button>
+        
+        <!-- Chat Window -->
+        <div id="chatWindow" class="hidden absolute bottom-24 right-0 w-[90vw] md:w-[400px] bg-saka-card border border-gray-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[500px] z-50 ring-1 ring-white/10">
+            <div class="bg-gradient-to-r from-saka-orange to-red-600 p-4 flex justify-between items-center text-white">
+                <div class="flex items-center gap-2">
+                    <div class="bg-white/20 p-1.5 rounded-lg"><i class="fa-solid fa-robot"></i></div>
+                    <div>
+                        <span class="font-bold block text-sm">Saka AI</span>
+                        <span class="text-[10px] opacity-80 uppercase tracking-wider">Chill Mode</span>
+                    </div>
+                </div>
+                <button onclick="toggleChat()" class="hover:bg-white/20 p-1 rounded transition"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div id="chatMessages" class="flex-1 p-4 overflow-y-auto bg-[#121212] space-y-3">
+                <div class="chat-bubble chat-bot">
+                    Niaje? I'm Saka AI. Niko rada na everything Rongai. You looking for Hardware, Car Hire, ama some nice Food?
+                </div>
+            </div>
+            <div class="p-3 bg-saka-card border-t border-gray-700 flex gap-2">
+                <input type="text" id="chatInput" placeholder="Type here..." class="flex-1 bg-saka-gray text-white rounded-lg px-3 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-saka-orange border border-transparent">
+                <button onclick="sendChatMessage()" class="bg-saka-orange text-black px-4 rounded-lg hover:bg-white transition font-bold"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast">Action Successful</div>
+
+    <!-- FOOTER -->
+    <footer class="bg-black text-white py-12 border-t border-gray-800 mt-auto">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="text-center md:text-left">
+                    <div class="flex items-center justify-center md:justify-start gap-2 mb-2">
+                        <i class="fa-solid fa-location-dot text-saka-orange"></i>
+                        <h2 class="text-xl font-bold tracking-tighter">SAKA RONGAI</h2>
+                    </div>
+                    <p class="text-gray-500 text-sm">Connecting the Kware hustle to the world.</p>
+                </div>
+                <div class="flex gap-8 text-gray-400 text-sm font-medium">
+                    <a href="#" class="hover:text-saka-orange transition">Privacy</a>
+                    <a href="#" class="hover:text-saka-orange transition">For Business</a>
+                    <a href="#" class="hover:text-saka-orange transition">Add Listing</a>
+                </div>
+                <div class="flex gap-4">
+                    <a href="#" class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-saka-orange hover:text-black transition"><i class="fa-brands fa-whatsapp"></i></a>
+                    <a href="#" class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-saka-orange hover:text-black transition"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // --- DATA: The "Database" (Hardcoded for MVP) ---
+        // --- 1. DATA INITIALIZATION ---
+        // Default Data (Hardcoded)
+        const defaultBusinesses = [
+            // Hardware
+            { id: 101, name: "Njoroge Hardware", category: "hardware", location: "Kware Market", status: "Open", phone: "0712345678", desc: "Cement, Mabati and paints.", image: "orange-500" },
+            { id: 102, name: "Simba Cementers", category: "hardware", location: "Opp Maasai Mall", status: "Open", phone: "0722123456", desc: "Wholesale cement distributors.", image: "gray-600" },
+            { id: 103, name: "Rongai Paints", category: "hardware", location: "Tumaini", status: "Open", phone: "0777123456", desc: "Crown Paints mixing center.", image: "blue-500" },
+            
+            // Transport / Car Hire
+            { id: 201, name: "Rongai Car Hire", category: "transport", location: "Maasai Mall", status: "Open", phone: "0700111222", desc: "Self drive and Chauffeur driven cars.", image: "red-600" },
+            { id: 202, name: "Kevin Boda", category: "transport", location: "Tumaini", status: "Online", phone: "0755123456", desc: "Safe rider, extra helmet.", image: "purple-500" },
+            { id: 203, name: "Kiserian Movers", category: "transport", location: "Kiserian Rd", status: "Open", phone: "0788999000", desc: "House moving lorries.", image: "yellow-600" },
+
+            // Food
+            { id: 401, name: "Mama Oliech Fish", category: "food", location: "Tuskys Stage", status: "Open", phone: "0744123456", desc: "Fresh Tilapia and Omena.", image: "orange-400" },
+            { id: 402, name: "Chicken Inn", category: "food", location: "Petrol Station", status: "Open", phone: "0700000000", desc: "Fast food chicken.", image: "red-600" },
+            { id: 403, name: "Pizza Inn", category: "food", location: "Petrol Station", status: "Open", phone: "0700000001", desc: "Terrific Tuesday.", image: "orange-600" },
+            { id: 404, name: "Club 1824", category: "food", location: "Magadi Rd", status: "Open", phone: "0722000000", desc: "Nyama choma specialist.", image: "stone-700" },
+
+            // Services (Mama Fua / Househelp)
+            { id: 501, name: "Mama Fua Rongai", category: "mamafua", location: "Kware", status: "Online", phone: "0711222333", desc: "Laundry and house cleaning services.", image: "pink-500" },
+            { id: 502, name: "Rongai Househelps", category: "househelp", location: "Tumaini", status: "Open", phone: "0733444555", desc: "Bureau for house managers.", image: "teal-600" },
+            { id: 503, name: "Glamour Salon", category: "services", location: "Tuskys", status: "Open", phone: "0799888777", desc: "Braiding and chemicals.", image: "pink-600" },
+
+            // Water
+            { id: 601, name: "CleanFalls Water", category: "water", location: "Laiser Hill", status: "Busy", phone: "0766123456", desc: "10,000L water bowser.", image: "blue-400" },
+            
+            // Health
+            { id: 301, name: "Sinai Hospital", category: "health", location: "Laiser Hill", status: "24h", phone: "0733123456", desc: "Full service hospital.", image: "red-500" },
+            { id: 302, name: "Equity Afya", category: "health", location: "Maasai Mall", status: "Open", phone: "0788123456", desc: "Outpatient medical centre.", image: "stone-500" }
+        ];
+
+        // MERGE LOGIC (Local Storage + Default)
+        let allBusinesses = [...defaultBusinesses];
+        const savedBiz = localStorage.getItem('sakaData');
+        if (savedBiz) {
+            const parsed = JSON.parse(savedBiz);
+            // Map admin format to display format if needed
+            const formattedSaved = parsed.map(b => ({
+                id: b.id, name: b.name, category: b.category, location: b.location, 
+                status: b.status, phone: b.phone, desc: b.desc, image: b.image
+            }));
+            allBusinesses = [...formattedSaved, ...defaultBusinesses];
+        }
+
         const categories = [
-            { id: 'all', name: 'All', icon: 'fa-layer-group' },
-            { id: 'water', name: 'Maji', icon: 'fa-faucet-drip' },
-            { id: 'hardware', name: 'Hardware', icon: 'fa-hammer' },
-            { id: 'food', name: 'Soko/Food', icon: 'fa-basket-shopping' },
-            { id: 'health', name: 'Health', icon: 'fa-user-doctor' },
-            { id: 'transport', name: 'Boda', icon: 'fa-motorcycle' }
+            { id: 'all', name: 'All' },
+            { id: 'hardware', name: 'Hardware' },
+            { id: 'transport', name: 'Car Hire/Transport' },
+            { id: 'food', name: 'Food / Restaurants' },
+            { id: 'mamafua', name: 'Mama Fua' },
+            { id: 'househelp', name: 'House Managers' },
+            { id: 'water', name: 'Maji / Water' },
+            { id: 'health', name: 'Health' },
+            { id: 'services', name: 'Other Services' }
         ];
-
-        const businesses = [
-            {
-                id: 1,
-                name: "Njoroge's Maji Safi",
-                category: "water",
-                location: "Kware Market",
-                status: "Online",
-                phone: "0712345678",
-                desc: "Clean borehole water. 5000L tanker available immediately.",
-                image: "blue-500" // Tailwind color for placeholder
-            },
-            {
-                id: 2,
-                name: "Rongai Central Hardware",
-                category: "hardware",
-                location: "Opposite Maasai Mall",
-                status: "Open",
-                phone: "0722123456",
-                desc: "Cement, paints, and plumbing supplies. Free delivery within Rongai.",
-                image: "orange-500"
-            },
-            {
-                id: 3,
-                name: "Mama Oliech Fish & Greens",
-                category: "food",
-                location: "Tuskys Stage (Quickmart)",
-                status: "Open",
-                phone: "0733123456",
-                desc: "Fresh Tilapia from Kisumu daily. Managu and Terere available.",
-                image: "green-500"
-            },
-            {
-                id: 4,
-                name: "Dr. Kamau Dental Clinic",
-                category: "health",
-                location: "Galaxy Building, 2nd Floor",
-                status: "Closing Soon",
-                phone: "0744123456",
-                desc: "Professional dental services. NHIF accepted.",
-                image: "teal-500"
-            },
-            {
-                id: 5,
-                name: "Kevin Boda (Safe Rider)",
-                category: "transport",
-                location: "Tumaini Stage",
-                status: "Online",
-                phone: "0755123456",
-                desc: "5 years experience. Extra helmet available. Night runs ok.",
-                image: "purple-500"
-            },
-            {
-                id: 6,
-                name: "Laiser Hill Exhauster Services",
-                category: "water",
-                location: "Laiser Hill",
-                status: "Busy",
-                phone: "0766123456",
-                desc: "Septic tank emptying. Fast response.",
-                image: "yellow-600"
-            }
-        ];
-
-        // --- DOM ELEMENTS ---
-        const categoryContainer = document.getElementById('categoryContainer');
-        const businessList = document.getElementById('businessList');
-        const searchInput = document.getElementById('searchInput');
-        const emptyState = document.getElementById('emptyState');
 
         let activeCategory = 'all';
 
-        // --- RENDER FUNCTIONS ---
-
+        // --- 2. RENDER LOGIC ---
         function renderCategories() {
-            categoryContainer.innerHTML = categories.map(cat => `
-                <button 
-                    onclick="filterCategory('${cat.id}')"
-                    class="flex flex-col items-center gap-2 min-w-[70px] group transition-all"
-                >
-                    <div class="${activeCategory === cat.id ? 'bg-saka-orange text-black' : 'bg-saka-gray text-gray-400 group-hover:bg-gray-700'} w-14 h-14 rounded-2xl flex items-center justify-center text-xl transition-all shadow-md">
-                        <i class="fa-solid ${cat.icon}"></i>
-                    </div>
-                    <span class="text-[10px] font-medium ${activeCategory === cat.id ? 'text-saka-orange' : 'text-gray-400'}">${cat.name}</span>
+            const tabs = document.getElementById('categoryTabs');
+            tabs.innerHTML = categories.map(cat => `
+                <button onclick="filterCategory('${cat.id}')" 
+                    class="${activeCategory === cat.id ? 'bg-saka-orange text-black font-bold border-transparent' : 'bg-saka-card text-gray-400 border-gray-700 hover:text-white'} 
+                    border px-5 py-2 rounded-full whitespace-nowrap transition-all text-sm">
+                    ${cat.name}
                 </button>
             `).join('');
         }
 
-        function renderBusinesses(data) {
-            businessList.innerHTML = '';
+        function renderGroupedGrid(data) {
+            const container = document.getElementById('mainContentArea');
+            container.innerHTML = '';
             
             if (data.length === 0) {
-                emptyState.classList.remove('hidden');
+                document.getElementById('emptyState').classList.remove('hidden');
                 return;
             }
-            emptyState.classList.add('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
 
-            data.forEach(biz => {
-                // Determine badge color based on status
-                let badgeColor = 'bg-green-500/20 text-green-400 border-green-500/30';
-                if(biz.status === 'Busy') badgeColor = 'bg-red-500/20 text-red-400 border-red-500/30';
-                if(biz.status === 'Closing Soon') badgeColor = 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+            // If a specific category is selected or search is active, show flat grid
+            // If "All" is selected and no search, show Grouped Sections
+            const isFiltering = activeCategory !== 'all' || document.getElementById('heroSearch').value !== '';
 
-                const card = document.createElement('div');
-                card.className = "bg-saka-card p-4 rounded-xl border border-saka-gray hover:border-saka-orange/50 transition-all group shadow-sm";
-                card.innerHTML = `
-                    <div class="flex gap-4">
-                        <!-- Initials/Image Placeholder -->
-                        <div class="w-16 h-16 rounded-lg bg-${biz.image} flex-shrink-0 flex items-center justify-center text-white text-xl font-bold shadow-inner">
-                            ${biz.name.substring(0,2).toUpperCase()}
-                        </div>
-                        
-                        <div class="flex-1">
-                            <div class="flex justify-between items-start">
-                                <h3 class="font-bold text-white text-md leading-tight">${biz.name}</h3>
-                                <span class="text-[10px] px-2 py-0.5 rounded border ${badgeColor} font-medium whitespace-nowrap">${biz.status}</span>
-                            </div>
-                            
-                            <div class="flex items-center text-xs text-gray-400 mt-1 mb-2">
-                                <i class="fa-solid fa-map-pin mr-1 text-saka-orange"></i>
-                                ${biz.location}
-                            </div>
-                            
-                            <p class="text-xs text-gray-500 line-clamp-2">${biz.desc}</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Action Buttons -->
-                    <div class="mt-4 flex gap-3">
-                        <a href="tel:${biz.phone}" class="flex-1 bg-saka-orange hover:bg-orange-500 text-black font-bold py-2 rounded-lg text-sm flex items-center justify-center gap-2 transition-colors">
-                            <i class="fa-solid fa-phone"></i> Call Now
-                        </a>
-                        <button onclick="shareBiz('${biz.name}')" class="w-10 bg-saka-gray hover:bg-gray-700 text-white rounded-lg flex items-center justify-center transition-colors">
-                            <i class="fa-solid fa-share-nodes"></i>
-                        </button>
-                    </div>
-                `;
-                businessList.appendChild(card);
-            });
-        }
-
-        // --- FILTER LOGIC ---
-
-        function filterCategory(catId) {
-            activeCategory = catId;
-            renderCategories(); // Re-render to update active styling
-            applyFilters();
-        }
-
-        function applyFilters() {
-            const query = searchInput.value.toLowerCase();
-            
-            const filtered = businesses.filter(biz => {
-                const matchesCategory = activeCategory === 'all' || biz.category === activeCategory;
-                const matchesSearch = biz.name.toLowerCase().includes(query) || 
-                                      biz.desc.toLowerCase().includes(query) || 
-                                      biz.location.toLowerCase().includes(query);
-                return matchesCategory && matchesSearch;
-            });
-
-            renderBusinesses(filtered);
-        }
-
-        function shareBiz(name) {
-            // Check if Web Share API is available (works on mobile)
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Check out this business on Saka!',
-                    text: `I found ${name} on Saka Rongai.`,
-                    url: window.location.href
-                });
+            if (isFiltering) {
+                // Flat Grid
+                const grid = document.createElement('div');
+                grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6";
+                data.forEach(biz => grid.appendChild(createCard(biz)));
+                container.appendChild(grid);
             } else {
-                alert(`Copied ${name} link to clipboard!`);
+                // Grouped Sections (The "Netflix" style)
+                const groups = {};
+                data.forEach(biz => {
+                    if (!groups[biz.category]) groups[biz.category] = [];
+                    groups[biz.category].push(biz);
+                });
+
+                for (const [catSlug, bizList] of Object.entries(groups)) {
+                    // Find category Name
+                    const catName = categories.find(c => c.id === catSlug)?.name || catSlug.toUpperCase();
+                    
+                    const section = document.createElement('div');
+                    section.className = "mb-10";
+                    section.innerHTML = `<h3 class="text-2xl font-bold text-white mb-4 border-l-4 border-saka-orange pl-3 capitalize">${catName}</h3>`;
+                    
+                    const grid = document.createElement('div');
+                    grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6";
+                    bizList.forEach(biz => grid.appendChild(createCard(biz)));
+                    
+                    section.appendChild(grid);
+                    container.appendChild(section);
+                }
             }
         }
 
-        // --- EVENT LISTENERS ---
-        searchInput.addEventListener('input', applyFilters);
+        function createCard(biz) {
+            let statusColor = 'bg-green-500/10 text-green-400 border-green-500/20';
+            if(biz.status === 'Busy') statusColor = 'bg-red-500/10 text-red-400 border-red-500/20';
+            
+            // Image handling (Base64 or Tailwind Color)
+            let imgHtml = '';
+            if (biz.image && biz.image.startsWith('data:')) {
+                imgHtml = `<img src="${biz.image}" class="w-12 h-12 rounded-lg object-cover shadow-inner">`;
+            } else {
+                imgHtml = `<div class="w-12 h-12 rounded-lg bg-${biz.image || 'gray-700'} flex items-center justify-center text-white text-lg font-bold shadow-inner uppercase">${biz.name.substring(0,2)}</div>`;
+            }
 
-        // --- INITIALIZE ---
+            const card = document.createElement('div');
+            card.className = "bg-saka-card rounded-xl border border-saka-gray p-5 hover:border-saka-orange transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/5 group flex flex-col h-full";
+            card.innerHTML = `
+                <div class="flex items-start justify-between mb-4">
+                    ${imgHtml}
+                    <span class="text-[10px] px-2 py-1 rounded border ${statusColor} font-bold uppercase tracking-wide">${biz.status}</span>
+                </div>
+
+                <h3 class="font-bold text-white text-lg mb-1 group-hover:text-saka-orange transition-colors truncate">${biz.name}</h3>
+                
+                <div class="flex items-center text-sm text-gray-400 mb-3">
+                    <i class="fa-solid fa-map-pin mr-2 text-saka-orange text-xs"></i>
+                    ${biz.location}
+                </div>
+                
+                <p class="text-sm text-gray-500 mb-6 flex-grow border-t border-gray-800 pt-3 mt-1 line-clamp-2">${biz.desc}</p>
+                
+                <div class="grid grid-cols-2 gap-3 mt-auto">
+                    <a href="tel:${biz.phone}" class="bg-saka-gray hover:bg-white hover:text-black text-white font-bold py-2.5 rounded-lg text-sm flex items-center justify-center gap-2 transition-all duration-200">
+                        <i class="fa-solid fa-phone"></i> Call
+                    </a>
+                    <button onclick='openDetails(${JSON.stringify(biz).replace(/'/g, "&#39;")})' class="bg-saka-orange hover:bg-orange-500 text-black font-bold py-2.5 rounded-lg text-sm flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-orange-900/20">
+                        Order
+                    </button>
+                </div>
+            `;
+            return card;
+        }
+
+        // --- 3. FILTER & SEARCH ---
+        function filterCategory(catId) {
+            activeCategory = catId;
+            renderCategories();
+            runFilter();
+        }
+
+        function runFilter() {
+            const query = document.getElementById('heroSearch').value.toLowerCase();
+            const filtered = allBusinesses.filter(b => {
+                // Strict Category Filter if query is empty
+                const matchCat = activeCategory === 'all' || b.category === activeCategory;
+                
+                // Search Filter
+                const matchSearch = b.name.toLowerCase().includes(query) || 
+                                    b.desc.toLowerCase().includes(query) || 
+                                    b.category.toLowerCase().includes(query);
+                
+                // If searching, we prioritize the search term match over the category tab unless strict match needed
+                return matchCat && matchSearch;
+            });
+            renderGroupedGrid(filtered);
+        }
+
+        function scrollToDirectory() {
+            document.getElementById('directory').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.getElementById('heroSearch').addEventListener('input', runFilter);
+
+        // --- 4. MODALS & AUTH ---
+        function openDetails(biz) {
+            const modal = document.getElementById('detailsModal');
+            // Generate Random Rating
+            const stars = (Math.random() * (5.0 - 4.0) + 4.0).toFixed(1);
+            
+            document.getElementById('modalName').innerText = biz.name;
+            document.getElementById('modalStars').innerText = stars;
+            document.getElementById('modalCat').innerText = biz.category.toUpperCase();
+            document.getElementById('modalLoc').innerText = biz.location;
+            document.getElementById('modalDesc').innerText = biz.desc;
+            
+            // Image Initials
+            document.getElementById('modalImg').innerText = biz.name.substring(0,2).toUpperCase();
+            
+            document.getElementById('modalCall').href = `tel:${biz.phone}`;
+            document.getElementById('modalWhatsapp').href = `https://wa.me/${biz.phone}?text=Hi, found you on Saka. I want to order.`;
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').classList.add('hidden');
+        }
+
+        function toggleAuthModal() {
+            const m = document.getElementById('authModal');
+            m.classList.toggle('hidden');
+        }
+        const showLoginModal = () => {
+            toggleAuthModal();
+            switchAuthView('login');
+        };
+        const showSignupModal = () => {
+            toggleAuthModal();
+            switchAuthView('signup');
+        };
+
+        function switchAuthView(view) {
+            if(view === 'signup') {
+                document.getElementById('loginView').classList.add('hidden');
+                document.getElementById('signupView').classList.remove('hidden');
+                document.getElementById('authTitle').innerText = "Join Saka";
+            } else {
+                document.getElementById('signupView').classList.add('hidden');
+                document.getElementById('loginView').classList.remove('hidden');
+                document.getElementById('authTitle').innerText = "Welcome Back";
+            }
+        }
+
+        function toggleBizFields() {
+            const checkbox = document.getElementById('bizToggle');
+            const fields = document.getElementById('bizFields');
+            if(checkbox.checked) fields.classList.remove('hidden');
+            else fields.classList.add('hidden');
+        }
+
+        function handleAuth(e) {
+            e.preventDefault();
+            toggleAuthModal();
+            showToast("Welcome! You are now logged in.", "success");
+            
+            // Mock Login State
+            document.getElementById('authSection').innerHTML = `
+                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold cursor-pointer hover:ring-2 ring-white">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+            `;
+        }
+
+        // --- 5. CHILL SAKA AI ---
+        function toggleChat() { document.getElementById('chatWindow').classList.toggle('hidden'); }
+        
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const chatBox = document.getElementById('chatMessages');
+            const userText = input.value.toLowerCase();
+            if(!userText) return;
+            
+            // User
+            chatBox.innerHTML += `<div class="bg-saka-orange text-black p-3 rounded-xl rounded-br-none ml-auto max-w-[85%] text-sm mb-2 font-bold">${input.value}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+            input.value = "";
+
+            // Bot Logic
+            setTimeout(() => {
+                let response = "Eish, sikupata hiyo (I didn't find that). Try searching categories like Food or Hardware.";
+                
+                // Simple keyword matching from database
+                const hits = allBusinesses.filter(b => b.name.toLowerCase().includes(userText) || b.category.includes(userText));
+                
+                if (userText.includes('hi') || userText.includes('sasa')) {
+                    response = "Vipi kiongozi! 👊 I'm Saka. Unatafuta nini leo? (What are you looking for?)";
+                } else if (hits.length > 0) {
+                    const top = hits[0];
+                    response = `Maze nimepata ${hits.length} spots. Check out <b>${top.name}</b> pale ${top.location}. Wako open. Number ni ${top.phone}.`;
+                }
+
+                chatBox.innerHTML += `<div class="bg-gray-800 text-white p-3 rounded-xl rounded-bl-none max-w-[85%] text-sm mb-2 border border-gray-600">${response}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 800);
+        }
+
+        function showToast(msg, type) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.borderLeftColor = type === 'success' ? '#22C55E' : '#EF4444';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // --- INIT ---
         renderCategories();
-        renderBusinesses(businesses);
+        renderGroupedGrid(allBusinesses);
 
     </script>
 </body>

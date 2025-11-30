@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saka Rongai Data Manager - VEXEL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        saka: { orange: '#FF6B00', dark: '#121212', card: '#1E1E1E', gray: '#2D2D2D' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0f0f0f; color: #e5e5e5; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #121212; }
+        ::-webkit-scrollbar-thumb { background: #2D2D2D; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #FF6B00; }
+    </style>
+</head>
+<body class="p-6 max-w-7xl mx-auto">
+
+    <!-- HEADER -->
+    <div class="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                <i class="fa-solid fa-database"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-white">Vexel Data Manager</h1>
+                <p class="text-xs text-purple-400 font-mono tracking-widest">FOR SAKA RONGAI</p>
+            </div>
+        </div>
+        <button onclick="exportData()" class="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded-lg font-bold transition shadow-lg shadow-green-900/20">
+            <i class="fa-solid fa-code mr-2"></i> Generate Code
+        </button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- FORM SECTION (Left Side) -->
+        <div class="bg-saka-card p-6 rounded-xl border border-gray-800 shadow-xl lg:col-span-1 h-fit sticky top-6">
+            <h2 class="text-lg font-bold text-saka-orange mb-4 border-b border-gray-800 pb-2">Add New Business</h2>
+            
+            <form id="addBizForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Business Name</label>
+                    <input type="text" id="bName" placeholder="e.g. Mama Njoro Grocers" class="w-full bg-saka-dark border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:border-saka-orange focus:outline-none" required>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">Category</label>
+                        <select id="bCat" class="w-full bg-saka-dark border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:border-saka-orange focus:outline-none">
+                            <option value="hardware">Hardware</option>
+                            <option value="food">Soko / Food</option>
+                            <option value="water">Maji / Water</option>
+                            <option value="schools">Schools</option>
+                            <option value="health">Health</option>
+                            <option value="services">Services</option>
+                            <option value="transport">Transport</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">Status</label>
+                        <select id="bStatus" class="w-full bg-saka-dark border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:border-saka-orange focus:outline-none">
+                            <option value="Open">Open</option>
+                            <option value="Closed">Closed</option>
+                            <option value="Busy">Busy</option>
+                            <option value="24h">24h</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Location (Be specific)</label>
+                    <input type="text" id="bLoc" placeholder="e.g. Kware Market, Opp. Posta" class="w-full bg-saka-dark border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:border-saka-orange focus:outline-none" required>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Phone Number</label>
+                    <input type="tel" id="bPhone" placeholder="e.g. 0712345678" class="w-full bg-saka-dark border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:border-saka-orange focus:outline-none" required>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Description (Max 60 chars)</label>
+                    <textarea id="bDesc" maxlength="60" placeholder="e.g. Fresh vegetables daily." class="w-full bg-saka-dark border border-gray-700 rounded-lg p-2.5 text-sm text-white focus:border-saka-orange focus:outline-none h-20"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Business Image (Optional)</label>
+                    <div class="flex items-center justify-center w-full">
+                        <label for="bImage" class="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-700 border-dashed rounded-lg cursor-pointer bg-saka-dark hover:bg-gray-800 transition">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <i class="fa-solid fa-cloud-arrow-up text-gray-400 mb-2"></i>
+                                <p class="text-xs text-gray-500"><span class="font-semibold">Click to upload</span> (Max 50KB)</p>
+                            </div>
+                            <input id="bImage" type="file" class="hidden" accept="image/*" onchange="previewImage(this)">
+                        </label>
+                    </div>
+                    <img id="imgPreview" class="mt-2 w-16 h-16 rounded-lg object-cover hidden border border-gray-600">
+                    <input type="hidden" id="bImageBase64">
+                </div>
+
+                <button type="submit" class="w-full bg-saka-orange hover:bg-orange-600 text-black font-bold py-3 rounded-xl transition shadow-lg shadow-orange-500/20">
+                    <i class="fa-solid fa-plus mr-2"></i> Add to Sheet
+                </button>
+            </form>
+        </div>
+
+        <!-- LIST SECTION (Right Side) -->
+        <div class="lg:col-span-2">
+            <div class="bg-saka-card rounded-xl border border-gray-800 shadow-xl overflow-hidden">
+                <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/50">
+                    <h2 class="text-lg font-bold text-white">Current Businesses (<span id="count">0</span>)</h2>
+                    <button onclick="clearList()" class="text-xs text-red-400 hover:text-red-300 underline">Clear All</button>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-400">
+                        <thead class="text-xs text-gray-500 uppercase bg-gray-900 border-b border-gray-800">
+                            <tr>
+                                <th class="px-4 py-3">Image</th>
+                                <th class="px-4 py-3">Name</th>
+                                <th class="px-4 py-3">Category</th>
+                                <th class="px-4 py-3">Location</th>
+                                <th class="px-4 py-3">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bizTableBody">
+                            <!-- Rows added here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Empty State -->
+                <div id="emptyList" class="p-10 text-center">
+                    <i class="fa-solid fa-folder-open text-4xl text-gray-700 mb-3"></i>
+                    <p class="text-gray-600">No businesses added yet.</p>
+                </div>
+            </div>
+
+            <!-- CODE OUTPUT SECTION -->
+            <div id="codeOutput" class="mt-8 hidden">
+                <div class="bg-gray-900 rounded-xl border border-green-900/50 p-6 relative">
+                    <h3 class="text-green-400 font-bold mb-2">SUCCESS! Copy this Code:</h3>
+                    <p class="text-xs text-gray-500 mb-4">Go to your <code>index.html</code> file. Find the line <code>const businesses = [...];</code> and REPLACE the whole list with this:</p>
+                    
+                    <textarea id="jsonResult" readonly class="w-full h-64 bg-black text-green-500 font-mono text-xs p-4 rounded-lg border border-gray-700 focus:outline-none"></textarea>
+                    
+                    <button onclick="copyToClipboard()" class="absolute top-6 right-6 bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded text-xs font-bold">
+                        Copy Text
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- LOGIC ---
+        let businessData = [];
+
+        // Load from LocalStorage if available (so you don't lose data on refresh)
+        const savedData = localStorage.getItem('sakaData');
+        if (savedData) {
+            businessData = JSON.parse(savedData);
+            renderTable();
+        }
+
+        // Image Preview & Conversion
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Display preview
+                    const img = document.getElementById('imgPreview');
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    
+                    // Store Base64 string
+                    document.getElementById('bImageBase64').value = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Add Business
+        document.getElementById('addBizForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Get Random Color for Placeholder if no image
+            const colors = ['red-500', 'orange-500', 'yellow-500', 'green-500', 'blue-500', 'purple-500', 'pink-500'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+            const newBiz = {
+                id: Date.now(), // Unique ID based on time
+                name: document.getElementById('bName').value,
+                category: document.getElementById('bCat').value,
+                location: document.getElementById('bLoc').value,
+                status: document.getElementById('bStatus').value,
+                phone: document.getElementById('bPhone').value,
+                desc: document.getElementById('bDesc').value,
+                // If image uploaded use base64, else use random color class
+                image: document.getElementById('bImageBase64').value || randomColor
+            };
+
+            businessData.push(newBiz);
+            saveAndRender();
+            
+            // Reset Form
+            e.target.reset();
+            document.getElementById('imgPreview').classList.add('hidden');
+            document.getElementById('bImageBase64').value = "";
+        });
+
+        // Delete Business
+        function deleteBiz(id) {
+            if(confirm('Delete this business?')) {
+                businessData = businessData.filter(b => b.id !== id);
+                saveAndRender();
+            }
+        }
+
+        // Save to LocalStorage & Render
+        function saveAndRender() {
+            localStorage.setItem('sakaData', JSON.stringify(businessData));
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('bizTableBody');
+            const count = document.getElementById('count');
+            const empty = document.getElementById('emptyList');
+
+            tbody.innerHTML = '';
+            count.innerText = businessData.length;
+
+            if (businessData.length === 0) {
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            businessData.forEach(biz => {
+                // Check if image is base64 (starts with data:) or color class
+                let imgDisplay = '';
+                if (biz.image.startsWith('data:')) {
+                    imgDisplay = `<img src="${biz.image}" class="w-8 h-8 rounded object-cover">`;
+                } else {
+                    imgDisplay = `<div class="w-8 h-8 rounded bg-${biz.image}"></div>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-gray-800 hover:bg-gray-800/50 transition";
+                tr.innerHTML = `
+                    <td class="px-4 py-3">${imgDisplay}</td>
+                    <td class="px-4 py-3 font-bold text-white">${biz.name}</td>
+                    <td class="px-4 py-3"><span class="bg-gray-800 px-2 py-1 rounded text-xs border border-gray-700">${biz.category}</span></td>
+                    <td class="px-4 py-3 text-xs">${biz.location}</td>
+                    <td class="px-4 py-3">
+                        <button onclick="deleteBiz(${biz.id})" class="text-red-500 hover:text-white transition"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function clearList() {
+            if(confirm('Are you sure you want to clear ALL data?')) {
+                businessData = [];
+                saveAndRender();
+            }
+        }
+
+        function exportData() {
+            const outputDiv = document.getElementById('codeOutput');
+            const textarea = document.getElementById('jsonResult');
+            
+            // Convert the data object to a formatted string
+            // We need to handle the 'image' field carefully. 
+            // If it's a color string (e.g. "red-500"), it's fine.
+            // If it's Base64, it's a long string.
+            
+            const jsCode = `const businesses = ${JSON.stringify(businessData, null, 4)};`;
+            
+            textarea.value = jsCode;
+            outputDiv.classList.remove('hidden');
+            outputDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyToClipboard() {
+            const copyText = document.getElementById("jsonResult");
+            copyText.select();
+            document.execCommand("copy");
+            alert("Code copied! Now paste it into your index.html file.");
+        }
+    </script>
+</body>
+</html>
